@@ -41,7 +41,7 @@ func (v StructValidator) Validate() error {
 
 type StructFn func(v *StructValidator)
 
-func Register(name string, fns ...Validate) StructFn {
+func Field(name string, fns ...Validate) StructFn {
 	return func(v *StructValidator) {
 		v.fns[name] = append(v.fns[name], fns...)
 	}
