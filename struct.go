@@ -20,14 +20,8 @@ type FieldError struct {
 }
 
 func (f *FieldError) Error() string {
-	return ErrAtField(f.Name, f.Err).Error()
+	return fmt.Sprintf("[%v]: %v", f.Name, f.Err.Error())
 }
-
-var (
-	ErrAtField = func(name string, err error) error {
-		return fmt.Errorf("[%v]: %v", name, err.Error())
-	}
-)
 
 func (v StructValidator) Validate() error {
 	for i := 0; i < v.data.NumField(); i++ {
@@ -64,6 +58,7 @@ func Struct(fns ...StructFn) Validate {
 		return mustBeStruct(data, func(data reflect.Value) error {
 			v := &StructValidator{
 				data: data,
+				fns:  make(map[string][]Validate),
 			}
 			for _, fn := range fns {
 				fn(v)
