@@ -32,7 +32,7 @@ func TestMustBeStruct(t *testing.T) {
 
 func TestTructNoValidate(t *testing.T) {
 	t.Parallel()
-	fns := Struct(Register("A"))
+	fns := Struct(Field("A"))
 	tests := []testCase{
 		{"not struct", 123, ErrNotStruct},
 		{"is struct", mockStruct{}, nil},
@@ -47,7 +47,7 @@ func TestTructNoValidate(t *testing.T) {
 
 func TestStructValidate(t *testing.T) {
 	t.Parallel()
-	fns := Struct(WithKey("abc"), Register("A", Require), Register("A", String(MinLength(5))))
+	fns := Struct(WithKey("abc"), Field("A", Require), Field("A", String(MinLength(5))))
 	tests := []testCase{
 		{
 			"empty A", mockStruct{}, &FieldError{"abc", "A", ErrRequired},
@@ -88,7 +88,7 @@ func TestFieldError_Error(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		t.Run(fmt.Sprint("test ", i), func(t *testing.T) {
 			err := &FieldError{
-				Key: randomString(),
+				Key:  randomString(),
 				Name: randomString(),
 				Err:  errors.New(randomString()),
 			}
