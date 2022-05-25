@@ -2,7 +2,6 @@ package validate
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 )
 
@@ -13,14 +12,8 @@ type StructValidator struct {
 	opts []Validate
 }
 
-type FieldError struct {
-	Key  string
-	Name string
-	Err  error
-}
-
-func (f *FieldError) Error() string {
-	return fmt.Sprintf("[%v]: %v", f.Name, f.Err.Error())
+type Keyable interface {
+	Key() string
 }
 
 func (v StructValidator) Validate() error {
@@ -32,7 +25,7 @@ func (v StructValidator) Validate() error {
 		}
 		for _, fn := range fns {
 			if err := fn(v.data.Field(i).Interface()); err != nil {
-				return &FieldError{v.key, fName, err}
+				return FieldError(v.key, fName, err)
 			}
 		}
 	}
@@ -59,6 +52,10 @@ func Struct(fns ...StructFn) Validate {
 			v := &StructValidator{
 				data: data,
 				fns:  make(map[string][]Validate),
+			}
+			keyable, ok := data.Interface().(Keyable)
+			if ok {
+				v.key = keyable.Key()
 			}
 			for _, fn := range fns {
 				fn(v)

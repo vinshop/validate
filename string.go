@@ -11,6 +11,15 @@ type StringValidate struct {
 	fns  []Validate
 }
 
+func (s StringValidate) Validate() error {
+	for _, fn := range s.fns {
+		if err := fn(s.data); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 var (
 	ErrNotString = errors.New("must be a string")
 	ErrMaxLength = func(l int) error {
@@ -90,13 +99,4 @@ func mustBeRegex(data string, fn func(r *regexp.Regexp) error) error {
 		return err
 	}
 	return fn(regex)
-}
-
-func (s StringValidate) Validate() error {
-	for _, fn := range s.fns {
-		if err := fn(s.data); err != nil {
-			return err
-		}
-	}
-	return nil
 }
