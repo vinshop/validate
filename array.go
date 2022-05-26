@@ -7,25 +7,27 @@ import (
 )
 
 type ArrayValidate struct {
-	data reflect.Value
 	each []Rule
 	all  []Rule
 }
 
-func (a *ArrayValidate) Validate() error {
+func (a ArrayValidate) Do(data interface{}) error {
 	for _, fn := range a.all {
-		if err := fn.Do(a.data.Interface()); err != nil {
+		if err := fn.Do(data); err != nil {
 			return err
 		}
 	}
-	for i := 0; i < a.data.Len(); i++ {
-		for _, fn := range a.each {
-			if err := fn.Do(a.data.Index(i).Interface()); err != nil {
-				return ArrayError(i, err)
+	return mustBeArray(data, func(data reflect.Value) error {
+		for i := 0; i < data.Len(); i++ {
+			for _, fn := range a.each {
+				if err := fn.Do(data.Index(i).Interface()); err != nil {
+					return ArrayError(i, err)
+				}
 			}
 		}
-	}
-	return nil
+		return nil
+	})
+
 }
 
 var (
@@ -41,19 +43,14 @@ var (
 type ArrayFn func(v *ArrayValidate)
 
 func Array(fns ...ArrayFn) Rule {
-	return RuleFn(func(data interface{}) error {
-		return mustBeArray(data, func(data reflect.Value) error {
-			v := &ArrayValidate{
-				data: data,
-				each: make([]Rule, 0),
-				all:  make([]Rule, 0),
-			}
-			for _, fn := range fns {
-				fn(v)
-			}
-			return v.Validate()
-		})
-	})
+	v := &ArrayValidate{
+		each: make(Rules, 0),
+		all:  make(Rules, 0),
+	}
+	for _, fn := range fns {
+		fn(v)
+	}
+	return v
 }
 
 func Each(fns ...Rule) ArrayFn {
