@@ -5,6 +5,10 @@ type Valid struct {
 	fns  Rules
 }
 
+func (v *Valid) Do(_ interface{}) error {
+	return v.Validate()
+}
+
 func Use(data interface{}, fns ...Rule) *Valid {
 	return &Valid{
 		data: data,

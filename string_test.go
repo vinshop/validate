@@ -27,7 +27,7 @@ func TestMustBeRegex(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.expect, mustBeRegex(test.value.(string), func(r *regexp.Regexp) error {
+			assert.Equal(t, test.expect, MustBeRegex(test.value.(string), func(r *regexp.Regexp) error {
 				return nil
 			}))
 		})
@@ -42,7 +42,7 @@ func TestMustBeString(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.expect, mustBeString(test.value, func(s string) error {
+			assert.Equal(t, test.expect, MustBeString(test.value, func(s string) error {
 				return nil
 			}))
 		})

@@ -17,7 +17,7 @@ func (a ArrayValidate) Do(data interface{}) error {
 			return err
 		}
 	}
-	return mustBeArray(data, func(data reflect.Value) error {
+	return MustBeArray(data, func(data reflect.Value) error {
 		for i := 0; i < data.Len(); i++ {
 			for _, fn := range a.each {
 				if err := fn.Do(data.Index(i).Interface()); err != nil {
@@ -67,7 +67,7 @@ func ArrayHas(fns ...Rule) ArrayFn {
 
 func MinSize(l int) Rule {
 	return RuleFn(func(data interface{}) error {
-		return mustBeArray(data, func(s reflect.Value) error {
+		return MustBeArray(data, func(s reflect.Value) error {
 			if s.Len() < l {
 				return ErrMinSize(l)
 			}
@@ -78,7 +78,7 @@ func MinSize(l int) Rule {
 
 func MaxSize(l int) Rule {
 	return RuleFn(func(data interface{}) error {
-		return mustBeArray(data, func(s reflect.Value) error {
+		return MustBeArray(data, func(s reflect.Value) error {
 			if s.Len() > l {
 				return ErrMaxSize(l)
 			}
@@ -87,7 +87,7 @@ func MaxSize(l int) Rule {
 	})
 }
 
-func mustBeArray(data interface{}, fn func(s reflect.Value) error) error {
+func MustBeArray(data interface{}, fn func(s reflect.Value) error) error {
 	v := reflect.ValueOf(data)
 	for v.Kind() == reflect.Pointer {
 		v = v.Elem()

@@ -22,7 +22,7 @@ func (v *StructValidator) Do(data interface{}) error {
 			v.key = keyable.Key()
 		}
 	}
-	return mustBeStruct(data, func(data reflect.Value) error {
+	return MustBeStruct(data, func(data reflect.Value) error {
 		for i := 0; i < data.NumField(); i++ {
 			fName := data.Type().Field(i).Name
 			fns := v.fns[fName]
@@ -69,7 +69,7 @@ var (
 	ErrNotStruct = errors.New("must be an object")
 )
 
-func mustBeStruct(data interface{}, fn func(data reflect.Value) error) error {
+func MustBeStruct(data interface{}, fn func(data reflect.Value) error) error {
 	v := reflect.ValueOf(data)
 	for v.Kind() == reflect.Pointer {
 		v = v.Elem()
