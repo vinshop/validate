@@ -1,5 +1,6 @@
 package validate
 
+// Valid main validator
 type Valid struct {
 	data interface{}
 	fns  Rules
@@ -9,6 +10,7 @@ func (v *Valid) Do(_ interface{}) error {
 	return v.Validate()
 }
 
+// Use add Rule for data
 func Use(data interface{}, fns ...Rule) *Valid {
 	return &Valid{
 		data: data,

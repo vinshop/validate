@@ -13,6 +13,7 @@ const (
 	ErrArrIndex ErrType = "arr_idx"
 )
 
+// Error common error type
 type Error struct {
 	Type ErrType
 	Key  string
@@ -20,6 +21,7 @@ type Error struct {
 	Err  error
 }
 
+// FieldError error for Field in Struct validator
 func FieldError(key string, field reflect.StructField, err error) error {
 	name := field.Name
 	if json, ok := field.Tag.Lookup("json"); ok {
@@ -36,6 +38,7 @@ func FieldError(key string, field reflect.StructField, err error) error {
 	}
 }
 
+// ArrayError error for Array
 func ArrayError(index int, err error) error {
 	return &Error{
 		Type: ErrArrIndex,
@@ -53,6 +56,7 @@ func (e *Error) Error() string {
 	return err.Error()
 }
 
+// GetLastErrorWithKey return the last Error has Key
 func (e *Error) GetLastErrorWithKey() error {
 	var (
 		err error
@@ -75,6 +79,7 @@ func (e *Error) GetLastErrorWithKey() error {
 	return res
 }
 
+// GetRootError return the root error
 func (e *Error) GetRootError() (string, error) {
 	b := strings.Builder{}
 	b.WriteString(e.Name)
