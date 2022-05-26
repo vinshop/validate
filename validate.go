@@ -2,10 +2,10 @@ package validate
 
 type Valid struct {
 	data interface{}
-	fns  []Validate
+	fns  Rules
 }
 
-func Use(data interface{}, fns ...Validate) *Valid {
+func Use(data interface{}, fns ...Rule) *Valid {
 	return &Valid{
 		data: data,
 		fns:  fns,
@@ -14,7 +14,7 @@ func Use(data interface{}, fns ...Validate) *Valid {
 
 func (v *Valid) Validate() error {
 	for _, fn := range v.fns {
-		if err := fn(v.data); err != nil {
+		if err := fn.Do(v.data); err != nil {
 			return err
 		}
 	}

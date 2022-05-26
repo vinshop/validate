@@ -8,12 +8,12 @@ import (
 
 type StringValidate struct {
 	data interface{}
-	fns  []Validate
+	fns  []Rule
 }
 
 func (s StringValidate) Validate() error {
 	for _, fn := range s.fns {
-		if err := fn(s.data); err != nil {
+		if err := fn.Do(s.data); err != nil {
 			return err
 		}
 	}
@@ -33,41 +33,41 @@ var (
 	}
 )
 
-func String(fns ...Validate) Validate {
-	return func(data interface{}) error {
+func String(fns ...Rule) Rule {
+	return RuleFn(func(data interface{}) error {
 		return mustBeString(data, func(s string) error {
 			return StringValidate{
 				data: data,
 				fns:  fns,
 			}.Validate()
 		})
-	}
+	})
 }
 
-func MaxLength(l int) Validate {
-	return func(data interface{}) error {
+func MaxLength(l int) Rule {
+	return RuleFn(func(data interface{}) error {
 		return mustBeString(data, func(s string) error {
 			if len(s) > l {
 				return ErrMaxLength(l)
 			}
 			return nil
 		})
-	}
+	})
 }
 
-func MinLength(l int) Validate {
-	return func(data interface{}) error {
+func MinLength(l int) Rule {
+	return RuleFn(func(data interface{}) error {
 		return mustBeString(data, func(s string) error {
 			if len(s) < l {
 				return ErrMinLength(l)
 			}
 			return nil
 		})
-	}
+	})
 }
 
-func Match(regex string) Validate {
-	return func(data interface{}) error {
+func Match(regex string) Rule {
+	return RuleFn(func(data interface{}) error {
 		return mustBeString(data, func(s string) error {
 			return mustBeRegex(regex, func(r *regexp.Regexp) error {
 				if !r.MatchString(s) {
@@ -76,13 +76,13 @@ func Match(regex string) Validate {
 				return nil
 			})
 		})
-	}
+	})
 }
 
-func StringCustom(fn func(s string) error) Validate {
-	return func(data interface{}) error {
+func StringCustom(fn func(s string) error) Rule {
+	return RuleFn(func(data interface{}) error {
 		return mustBeString(data, fn)
-	}
+	})
 }
 
 func mustBeString(data interface{}, fn func(s string) error) error {

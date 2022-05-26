@@ -8,19 +8,19 @@ import (
 
 type ArrayValidate struct {
 	data reflect.Value
-	each []Validate
-	all  []Validate
+	each []Rule
+	all  []Rule
 }
 
 func (a *ArrayValidate) Validate() error {
 	for _, fn := range a.all {
-		if err := fn(a.data.Interface()); err != nil {
+		if err := fn.Do(a.data.Interface()); err != nil {
 			return err
 		}
 	}
 	for i := 0; i < a.data.Len(); i++ {
 		for _, fn := range a.each {
-			if err := fn(a.data.Index(i).Interface()); err != nil {
+			if err := fn.Do(a.data.Index(i).Interface()); err != nil {
 				return ArrayError(i, err)
 			}
 		}
@@ -40,54 +40,54 @@ var (
 
 type ArrayFn func(v *ArrayValidate)
 
-func Array(fns ...ArrayFn) Validate {
-	return func(data interface{}) error {
+func Array(fns ...ArrayFn) Rule {
+	return RuleFn(func(data interface{}) error {
 		return mustBeArray(data, func(data reflect.Value) error {
 			v := &ArrayValidate{
 				data: data,
-				each: make([]Validate, 0),
-				all:  make([]Validate, 0),
+				each: make([]Rule, 0),
+				all:  make([]Rule, 0),
 			}
 			for _, fn := range fns {
 				fn(v)
 			}
 			return v.Validate()
 		})
-	}
+	})
 }
 
-func Each(fns ...Validate) ArrayFn {
+func Each(fns ...Rule) ArrayFn {
 	return func(v *ArrayValidate) {
 		v.each = append(v.each, fns...)
 	}
 }
 
-func ArrayHas(fns ...Validate) ArrayFn {
+func ArrayHas(fns ...Rule) ArrayFn {
 	return func(v *ArrayValidate) {
 		v.all = append(v.all, fns...)
 	}
 }
 
-func MinSize(l int) Validate {
-	return func(data interface{}) error {
+func MinSize(l int) Rule {
+	return RuleFn(func(data interface{}) error {
 		return mustBeArray(data, func(s reflect.Value) error {
 			if s.Len() < l {
 				return ErrMinSize(l)
 			}
 			return nil
 		})
-	}
+	})
 }
 
-func MaxSize(l int) Validate {
-	return func(data interface{}) error {
+func MaxSize(l int) Rule {
+	return RuleFn(func(data interface{}) error {
 		return mustBeArray(data, func(s reflect.Value) error {
 			if s.Len() > l {
 				return ErrMaxSize(l)
 			}
 			return nil
 		})
-	}
+	})
 }
 
 func mustBeArray(data interface{}, fn func(s reflect.Value) error) error {
