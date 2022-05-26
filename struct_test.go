@@ -24,7 +24,7 @@ func TestMustBeStruct(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.expect, mustBeStruct(test.value, func(data reflect.Value) error {
+			assert.Equal(t, test.expect, MustBeStruct(test.value, func(data reflect.Value) error {
 				return nil
 			}))
 		})
