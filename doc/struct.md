@@ -13,5 +13,5 @@ WithKey(key string)
 ### Field
 Validate for field in struct
 ```go
-Field(fiedname string, fns ...Validate)
+Field(fiedname string, fns ...Rule)
 ```

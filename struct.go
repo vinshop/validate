@@ -7,29 +7,36 @@ import (
 
 type StructValidator struct {
 	key  string
-	data reflect.Value
-	fns  map[string][]Rule
-	opts []Rule
+	fns  map[string]Rules
+	opts Rules
 }
 
 type Keyable interface {
 	Key() string
 }
 
-func (v StructValidator) Validate() error {
-	for i := 0; i < v.data.NumField(); i++ {
-		fName := v.data.Type().Field(i).Name
-		fns := v.fns[fName]
-		if len(fns) == 0 {
-			continue
-		}
-		for _, fn := range fns {
-			if err := fn.Do(v.data.Field(i).Interface()); err != nil {
-				return FieldError(v.key, fName, err)
-			}
+func (v *StructValidator) Do(data interface{}) error {
+	if v.key == "" {
+		keyable, ok := data.(Keyable)
+		if ok {
+			v.key = keyable.Key()
 		}
 	}
-	return nil
+	return mustBeStruct(data, func(data reflect.Value) error {
+		for i := 0; i < data.NumField(); i++ {
+			fName := data.Type().Field(i).Name
+			fns := v.fns[fName]
+			if len(fns) == 0 {
+				continue
+			}
+			for _, fn := range fns {
+				if err := fn.Do(data.Field(i).Interface()); err != nil {
+					return FieldError(v.key, fName, err)
+				}
+			}
+		}
+		return nil
+	})
 }
 
 type StructFn func(v *StructValidator)
@@ -47,22 +54,15 @@ func WithKey(key string) StructFn {
 }
 
 func Struct(fns ...StructFn) Rule {
-	return RuleFn(func(data interface{}) error {
-		return mustBeStruct(data, func(data reflect.Value) error {
-			v := &StructValidator{
-				data: data,
-				fns:  make(map[string][]Rule),
-			}
-			keyable, ok := data.Interface().(Keyable)
-			if ok {
-				v.key = keyable.Key()
-			}
-			for _, fn := range fns {
-				fn(v)
-			}
-			return v.Validate()
-		})
-	})
+	v := &StructValidator{
+		key: "",
+		fns: make(map[string]Rules),
+	}
+	for _, fn := range fns {
+		fn(v)
+	}
+
+	return v
 }
 
 var (

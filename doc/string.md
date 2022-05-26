@@ -2,7 +2,7 @@
 Validate for string
 ## Syntax
 ```go
-With(s string, String(fns ...Validate))
+With(s string, String(fns ...Rule))
 ```
 ## String function
 ### MinLength
