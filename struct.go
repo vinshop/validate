@@ -5,12 +5,14 @@ import (
 	"reflect"
 )
 
+// StructValidator validate for Struct
 type StructValidator struct {
 	key  string
 	fns  map[string]Rules
 	opts Rules
 }
 
+// Keyable interface for Struct has custom Key
 type Keyable interface {
 	Key() string
 }
@@ -40,20 +42,24 @@ func (v *StructValidator) Do(data interface{}) error {
 	})
 }
 
+// StructFn Struct function
 type StructFn func(v *StructValidator)
 
+// Field validator for Field
 func Field(name string, fns ...Rule) StructFn {
 	return func(v *StructValidator) {
 		v.fns[name] = append(v.fns[name], fns...)
 	}
 }
 
+// WithKey custom key instead of field name or json tag
 func WithKey(key string) StructFn {
 	return func(v *StructValidator) {
 		v.key = key
 	}
 }
 
+// Struct create new StructValidator
 func Struct(fns ...StructFn) Rule {
 	v := &StructValidator{
 		key: "",
@@ -70,6 +76,7 @@ var (
 	ErrNotStruct = errors.New("must be an object")
 )
 
+// MustBeStruct check if data is a struct, if not return ErrNotStruct
 func MustBeStruct(data interface{}, fn func(data reflect.Value) error) error {
 	v := reflect.ValueOf(data)
 	for v.Kind() == reflect.Pointer {
