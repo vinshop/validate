@@ -2,6 +2,7 @@ package validate
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -19,7 +20,14 @@ type Error struct {
 	Err  error
 }
 
-func FieldError(key string, name string, err error) error {
+func FieldError(key string, field reflect.StructField, err error) error {
+	name := field.Name
+	if json, ok := field.Tag.Lookup("json"); ok {
+		parts := strings.Split(json, ",")
+		if len(parts) > 0 {
+			name = parts[0]
+		}
+	}
 	return &Error{
 		Type: ErrField,
 		Key:  key,

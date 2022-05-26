@@ -24,14 +24,15 @@ func (v *StructValidator) Do(data interface{}) error {
 	}
 	return MustBeStruct(data, func(data reflect.Value) error {
 		for i := 0; i < data.NumField(); i++ {
-			fName := data.Type().Field(i).Name
+			fieldStr := data.Type().Field(i)
+			fName := fieldStr.Name
 			fns := v.fns[fName]
 			if len(fns) == 0 {
 				continue
 			}
 			for _, fn := range fns {
 				if err := fn.Do(data.Field(i).Interface()); err != nil {
-					return FieldError(v.key, fName, err)
+					return FieldError(v.key, fieldStr, err)
 				}
 			}
 		}

@@ -8,7 +8,7 @@ import (
 )
 
 type mockStruct struct {
-	A interface{}
+	A interface{} `json:"a"`
 }
 
 func (m mockStruct) Key() string {
@@ -49,27 +49,28 @@ func TestTructNoValidate(t *testing.T) {
 func TestStructValidate(t *testing.T) {
 	t.Parallel()
 	fns := Struct(WithKey("abc"), Field("A", Require), Field("A", String(MinLength(5))))
+	rStruct := reflect.StructField{Tag: `json:"a"`}
 	tests := []testCase{
 		{
-			"empty A", mockStruct{}, FieldError("abc", "A", ErrRequired),
+			"empty A", mockStruct{}, FieldError("abc", rStruct, ErrRequired),
 		},
 		{
-			"A not string", mockStruct{124}, FieldError("abc", "A", ErrNotString),
+			"A not string", mockStruct{124}, FieldError("abc", rStruct, ErrNotString),
 		},
 		{
-			"A min length error", mockStruct{"1234"}, FieldError("abc", "A", ErrMinLength(5)),
+			"A min length error", mockStruct{"1234"}, FieldError("abc", rStruct, ErrMinLength(5)),
 		},
 		{
 			"A success", mockStruct{"12345"}, nil,
 		},
 		{
-			"empty ptr A", &mockStruct{}, FieldError("abc", "A", ErrRequired),
+			"empty ptr A", &mockStruct{}, FieldError("abc", rStruct, ErrRequired),
 		},
 		{
-			"ptr A not string", &mockStruct{124}, FieldError("abc", "A", ErrNotString),
+			"ptr A not string", &mockStruct{124}, FieldError("abc", rStruct, ErrNotString),
 		},
 		{
-			"ptr A min length error", &mockStruct{"1234"}, FieldError("abc", "A", ErrMinLength(5)),
+			"ptr A min length error", &mockStruct{"1234"}, FieldError("abc", rStruct, ErrMinLength(5)),
 		},
 		{
 			"ptr A success", &mockStruct{"12345"}, nil,
