@@ -79,7 +79,7 @@ var (
 // MustBeStruct check if data is a struct, if not return ErrNotStruct
 func MustBeStruct(data interface{}, fn func(data reflect.Value) error) error {
 	v := reflect.ValueOf(data)
-	for v.Kind() == reflect.Pointer {
+	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 	if v.Kind() != reflect.Struct {

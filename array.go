@@ -97,7 +97,7 @@ func MaxSize(l int) Rule {
 // MustBeArray check if data is array, if not return ErrNotArray
 func MustBeArray(data interface{}, fn func(s reflect.Value) error) error {
 	v := reflect.ValueOf(data)
-	for v.Kind() == reflect.Pointer {
+	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 	if v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
