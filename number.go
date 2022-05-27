@@ -141,3 +141,12 @@ func DoMath(fn func(n float64) float64, fns ...Rule) Rule {
 		})
 	})
 }
+
+// CustomNumber custom validator for number
+func CustomNumber(fn func(n float64) error) Rule {
+	return RuleFn(func(data interface{}) error {
+		return MustBeNumber(data, func(a float64) error {
+			return fn(a)
+		})
+	})
+}

@@ -147,3 +147,24 @@ func TestDoMath(t *testing.T) {
 		})
 	}
 }
+
+func TestCustomNumber(t *testing.T) {
+	t.Parallel()
+	num := 10.0
+	fns := Number(CustomNumber(func(n float64) error {
+		if n != num {
+			return ErrEQ(num)
+		}
+		return nil
+	}))
+	tests := []testCase{
+		{"not number", "abc", ErrNotNumber},
+		{"not equal", num + 1, ErrEQ(num)},
+		{"equal", num, nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expect, Use(test.value, fns).Validate())
+		})
+	}
+}
