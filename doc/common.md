@@ -1,7 +1,11 @@
 # Common
+
 Common validator
-### Required
-Check if value is zero or not
+
+### Check non zero value
+
+Check if a value zero or not
+
 ```go
 Required
 ```
