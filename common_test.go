@@ -22,3 +22,20 @@ func TestRequire(t *testing.T) {
 		})
 	}
 }
+
+func TestIn(t *testing.T) {
+	t.Parallel()
+	arr := []interface{}{1, "2", []interface{}{1, 2}}
+	fns := In(arr)
+	tests := []testCase{
+		{"not include", "1", ErrMustIn(arr)},
+		{"number", 1, nil},
+		{"string", "2", nil},
+		{"arr", []interface{}{1, 2}, nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expect, Use(test.value, fns).Validate())
+		})
+	}
+}

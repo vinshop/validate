@@ -41,6 +41,18 @@ var (
 	}
 )
 
+// MustBeArray check if data is array, if not return ErrNotArray
+func MustBeArray(data interface{}, fn func(s reflect.Value) error) error {
+	v := reflect.ValueOf(data)
+	for v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
+		return ErrNotArray
+	}
+	return fn(v)
+}
+
 // ArrayFn Array function
 type ArrayFn func(v *ArrayValidate)
 
@@ -63,14 +75,14 @@ func Each(fns ...Rule) ArrayFn {
 	}
 }
 
-// ArrayHas check common info of array like MinSize, MaxSize, etc...
+// ArrayHas check array info of array like MinSize, MaxSize, etc...
 func ArrayHas(fns ...Rule) ArrayFn {
 	return func(v *ArrayValidate) {
 		v.all = append(v.all, fns...)
 	}
 }
 
-// MinSize validate if array has length >= l, if not return ErrMinSize
+// MinSize check array has length >= l, if not return ErrMinSize
 func MinSize(l int) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeArray(data, func(s reflect.Value) error {
@@ -82,7 +94,7 @@ func MinSize(l int) Rule {
 	})
 }
 
-// MaxSize validate if array has length <= l, if not return ErrMaxSize
+// MaxSize check array has length <= l, if not return ErrMaxSize.
 func MaxSize(l int) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeArray(data, func(s reflect.Value) error {
@@ -92,16 +104,4 @@ func MaxSize(l int) Rule {
 			return nil
 		})
 	})
-}
-
-// MustBeArray check if data is array, if not return ErrNotArray
-func MustBeArray(data interface{}, fn func(s reflect.Value) error) error {
-	v := reflect.ValueOf(data)
-	for v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-	if v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
-		return ErrNotArray
-	}
-	return fn(v)
 }
