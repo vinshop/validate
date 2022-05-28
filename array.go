@@ -6,10 +6,35 @@ import (
 	"reflect"
 )
 
+var (
+	ErrNotArray = errors.New("must be an array")
+	ErrMinSize  = func(l int) error {
+		return fmt.Errorf("size must be equal or greater than %v", l)
+	}
+	ErrMaxSize = func(l int) error {
+		return fmt.Errorf("size must be equal or smaller than %v", l)
+	}
+)
+
 //ArrayValidate validator for array
 type ArrayValidate struct {
 	each []Rule
 	all  []Rule
+}
+
+// ArrayFn Array function
+type ArrayFn func(v *ArrayValidate)
+
+// Array check if data is array
+func Array(fns ...ArrayFn) Rule {
+	v := &ArrayValidate{
+		each: make(Rules, 0),
+		all:  make(Rules, 0),
+	}
+	for _, fn := range fns {
+		fn(v)
+	}
+	return v
 }
 
 func (a ArrayValidate) Do(data interface{}) error {
@@ -31,41 +56,14 @@ func (a ArrayValidate) Do(data interface{}) error {
 
 }
 
-var (
-	ErrNotArray = errors.New("must be an array")
-	ErrMinSize  = func(l int) error {
-		return fmt.Errorf("size must be equal or greater than %v", l)
-	}
-	ErrMaxSize = func(l int) error {
-		return fmt.Errorf("size must be equal or smaller than %v", l)
-	}
-)
-
 // MustBeArray check if data is array, if not return ErrNotArray
 func MustBeArray(data interface{}, fn func(s reflect.Value) error) error {
 	v := reflect.ValueOf(data)
-	for v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
+	v = reflect.Indirect(v)
 	if v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
 		return ErrNotArray
 	}
 	return fn(v)
-}
-
-// ArrayFn Array function
-type ArrayFn func(v *ArrayValidate)
-
-// Array check if data is array
-func Array(fns ...ArrayFn) Rule {
-	v := &ArrayValidate{
-		each: make(Rules, 0),
-		all:  make(Rules, 0),
-	}
-	for _, fn := range fns {
-		fn(v)
-	}
-	return v
 }
 
 // Each check each element in array

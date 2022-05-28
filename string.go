@@ -6,6 +6,37 @@ import (
 	"regexp"
 )
 
+var (
+	ErrNotString = errors.New("must be a string")
+	ErrMaxLength = func(l int) error {
+		return fmt.Errorf("string length must not be greater than %v", l)
+	}
+	ErrMinLength = func(l int) error {
+		return fmt.Errorf("string length must be greater than %v", l)
+	}
+	ErrRegexNotMatch = func(regex string) error {
+		return fmt.Errorf("string not match regex %v", regex)
+	}
+)
+
+// MustBeString check if data is String, if not return ErrNotString
+func MustBeString(data interface{}, fn func(s string) error) error {
+	s, ok := data.(string)
+	if !ok {
+		return ErrNotString
+	}
+	return fn(s)
+}
+
+// MustBeRegex check if data is regexp.Regexp, if not return err
+func MustBeRegex(data string, fn func(r *regexp.Regexp) error) error {
+	regex, err := regexp.Compile(data)
+	if err != nil {
+		return err
+	}
+	return fn(regex)
+}
+
 //StringValidate validator for String
 type StringValidate struct {
 	data interface{}
@@ -20,19 +51,6 @@ func (s StringValidate) Validate() error {
 	}
 	return nil
 }
-
-var (
-	ErrNotString = errors.New("must be a string")
-	ErrMaxLength = func(l int) error {
-		return fmt.Errorf("string length must not be greater than %v", l)
-	}
-	ErrMinLength = func(l int) error {
-		return fmt.Errorf("string length must be greater than %v", l)
-	}
-	ErrRegexNotMatch = func(regex string) error {
-		return fmt.Errorf("string not match regex %v", regex)
-	}
-)
 
 // String create new StringValidate
 func String(fns ...Rule) Rule {
@@ -89,22 +107,4 @@ func StringCustom(fn func(s string) error) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeString(data, fn)
 	})
-}
-
-// MustBeString check if data is String, if not return ErrNotString
-func MustBeString(data interface{}, fn func(s string) error) error {
-	s, ok := data.(string)
-	if !ok {
-		return ErrNotString
-	}
-	return fn(s)
-}
-
-// MustBeRegex check if data is regexp.Regexp, if not return err
-func MustBeRegex(data string, fn func(r *regexp.Regexp) error) error {
-	regex, err := regexp.Compile(data)
-	if err != nil {
-		return err
-	}
-	return fn(regex)
 }
