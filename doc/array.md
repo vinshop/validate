@@ -1,27 +1,39 @@
 # Array
-Validate for array
+
+Validate functions for an Array.
+
 ## Syntax
+
 ```go
-Array(fns ...ArrayFn)
-```
-## Array function
-### Each
-Verify for each element in array
-```go
-Each(fns ...Rule)
-```
-### ArrayHas
-Verify for the array
-```go
-ArrayHas(fns ...Rule)
+Array(...ArrayFn)
 ```
 
-### MinSize
+## Array function
+
+### Validate each element
+
+Verify for each element in the array.
+
+```go
+Each(...Rule)
+```
+
+### Validate for the array itself
+
+Verify for the array (like MinSize, MaxSize, etc...).
+
+```go
+ArrayHas(...Rule)
+```
+
+### Require minimum size
+
 ```go
 MinSize(l int)
 ```
 
-### MaxSize
+### Cap Limit
+
 ```go
 MaxSize(l int)
 ```

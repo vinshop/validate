@@ -1,16 +1,22 @@
 # Conditional
+
 Conditional verification
+
 ## Conditional Function
-### If
+
+### If else condition
+
 ```go
 If().
-	Then(fns ...Rule).
-	Else(fns ...Rule)
+Then(...Rule).
+Else(...Rule)
 ```
-### SwitchCase
+
+### Switch case
+
 ```go
 Switch().
-	Case(value interface{}, fns ...Rule).
-	CaseMany(value []interface{}, fns ...Rule).
-	Default(fns ...Rule)
+Case(interface{}, ...Rule).
+CaseMany([]interface{}, ...Rule).
+Default(...Rule)
 ```

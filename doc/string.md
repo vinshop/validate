@@ -1,30 +1,25 @@
 # String
-Validate for string
+Validate functions for a String
 ## Syntax
 ```go
 With(s string, String(fns ...Rule))
 ```
-## String function
-### MinLength
+## String functions
+### Require min length
 ```go
-MinLength(l int)
+MinLength(int)
 ```
-### MaxLength
+### Cap max length
 ```go
-MaxLength(l int)
+MaxLength(int)
 ```
-### Match
-Match regex
+### Match regex
 ```go
 Match(regex string)
 ```
-### StringCustom
-Custom validate
+### Custom validator
 ```go
 StringCustom(func(s string) error {
-    if s != "abc" {
-    return errors.New("not abc")
-    }
-    return nil
-}))
+    // your logic goes here
+})
 ```
