@@ -2,8 +2,10 @@ package validate
 
 import (
 	"github.com/stretchr/testify/assert"
+	"math/rand"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestRequire(t *testing.T) {
@@ -84,6 +86,27 @@ func TestIsKind(t *testing.T) {
 		{"number", 123, ErrNotKind(value)},
 		{"string", "1234", nil},
 		{"struct", mockStruct{}, ErrNotKind(value)},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expect, Use(test.value, fns).Validate())
+		})
+	}
+}
+
+func TestOptional(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
+	t.Parallel()
+	num := rand.Int63() % 100
+	fns := Optional(GT(float64(num)))
+	tests := []testCase{
+		{"nil", nil, nil},
+		{"empty string", "", nil},
+		{"zero", 0, nil},
+		{"string", "abc", ErrNotNumber},
+		{"less", num - 1, ErrGT(float64(num))},
+		{"equal", num, ErrGT(float64(num))},
+		{"greater", num + 1, nil},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

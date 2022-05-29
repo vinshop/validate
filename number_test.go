@@ -130,8 +130,8 @@ func TestGTE(t *testing.T) {
 
 func TestDoMath(t *testing.T) {
 	t.Parallel()
-	num := rand.Float64()
-	dif := rand.Float64()
+	num := rand.Float64() * 100
+	dif := rand.Float64() * 100
 	fns := Number(DoMath(func(n float64) float64 {
 		return n + dif
 	}, EQ(num)))
