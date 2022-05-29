@@ -1,17 +1,15 @@
 # Struct
-Validate for struct
+Validate functions for a Struct
 ## Syntax
 ```go
 With(struct{}, Struct(...StructFn))
 ```
-## Struct Function
-### With Key
-Add a key to the validator ( use for frontend validate purpose )
+## Struct Functions
+### Add key if an error happen
 ```go
-WithKey(key string)
+WithKey(string)
 ```
-### Field
-Validate for field in struct
+### Add validate functions to a field
 ```go
-Field(fiedname string, fns ...Rule)
+Field(string, ...Rule)
 ```
