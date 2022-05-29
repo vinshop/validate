@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrNotDate      = errors.New("not a valid date")
+	ErrTime         = errors.New("not a valid date")
 	ErrNotInt64     = errors.New("must be int64")
 	ErrNoTimeSource = errors.New("time source not chosen")
 	ErrBefore       = func(t time.Time) error {
@@ -20,10 +20,13 @@ var (
 )
 
 func MustBeTime(data interface{}, fn func(t time.Time) error) error {
+	if data == nil {
+		return ErrTime
+	}
 	v := reflect.Indirect(reflect.ValueOf(data))
 	date, ok := v.Interface().(time.Time)
 	if !ok {
-		return ErrNotDate
+		return ErrTime
 	}
 	return fn(date)
 }
@@ -31,7 +34,7 @@ func MustBeTime(data interface{}, fn func(t time.Time) error) error {
 type timeSource int
 
 const (
-	fromString timeSource = iota
+	fromString timeSource = iota + 1
 	fromSecond
 	fromNano
 )
@@ -104,28 +107,31 @@ func Nano(fns ...Rule) *TimeValidator {
 	}
 }
 
+// Before check if data is time instance before given time, if not return ErrBefore
 func Before(before time.Time) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeTime(data, func(t time.Time) error {
-			if !t.Before(before) {
-				return ErrBefore(before)
+			if t.Before(before) {
+				return nil
 			}
-			return nil
+			return ErrBefore(before)
 		})
 	})
 }
 
+// After check if data is time instance after given time, if not return ErrAfter
 func After(after time.Time) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeTime(data, func(t time.Time) error {
-			if !t.After(after) {
-				return ErrAfter(after)
+			if t.After(after) {
+				return nil
 			}
-			return nil
+			return ErrAfter(after)
 		})
 	})
 }
 
+// ChangeTime modify the data time instance
 func ChangeTime(fn func(t time.Time) time.Time, fns ...Rule) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeTime(data, func(t time.Time) error {
