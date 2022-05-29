@@ -46,6 +46,16 @@ func Number(fns ...Rule) Rule {
 
 var floatType = reflect.TypeOf(float64(0))
 
+// MustBeInt64 check if data is int64, if not return ErrNotInt64
+func MustBeInt64(data interface{}, fn func(i int64) error) error {
+	v := reflect.ValueOf(data)
+	v = reflect.Indirect(v)
+	if v.Kind() != reflect.Int64 {
+		return ErrNotInt64
+	}
+	return fn(v.Int())
+}
+
 // MustBeNumber check if data is Number, if not return ErrNotNumber
 func MustBeNumber(data interface{}, fn func(a float64) error) error {
 	v := reflect.ValueOf(data)

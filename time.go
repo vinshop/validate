@@ -19,17 +19,6 @@ var (
 	}
 )
 
-var timeKind = reflect.TypeOf(time.Time{}).Kind()
-
-func MustBeInt64(data interface{}, fn func(i int64) error) error {
-	v := reflect.ValueOf(data)
-	v = reflect.Indirect(v)
-	if v.Kind() != reflect.Int64 {
-		return ErrNotInt64
-	}
-	return fn(v.Int())
-}
-
 func MustBeTime(data interface{}, fn func(t time.Time) error) error {
 	v := reflect.Indirect(reflect.ValueOf(data))
 	date, ok := v.Interface().(time.Time)
@@ -85,6 +74,7 @@ func (t *TimeValidator) Do(data interface{}) error {
 	}
 }
 
+// Date parse date from layout string and loc, default layout is time.RFC3339, default loc is time.Local
 func Date(layout string, loc *time.Location, fns ...Rule) *TimeValidator {
 	return &TimeValidator{
 		source: fromString,
@@ -94,6 +84,7 @@ func Date(layout string, loc *time.Location, fns ...Rule) *TimeValidator {
 	}
 }
 
+// Second parse date from second
 func Second(fns ...Rule) *TimeValidator {
 	return &TimeValidator{
 		source: fromSecond,
@@ -103,6 +94,7 @@ func Second(fns ...Rule) *TimeValidator {
 	}
 }
 
+// Nano parse date from nano
 func Nano(fns ...Rule) *TimeValidator {
 	return &TimeValidator{
 		source: fromNano,
@@ -130,6 +122,15 @@ func After(after time.Time) Rule {
 				return ErrAfter(after)
 			}
 			return nil
+		})
+	})
+}
+
+func ChangeTime(fn func(t time.Time) time.Time, fns ...Rule) Rule {
+	return RuleFn(func(data interface{}) error {
+		return MustBeTime(data, func(t time.Time) error {
+			t = fn(t)
+			return Use(t, fns...).Validate()
 		})
 	})
 }
