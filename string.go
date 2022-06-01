@@ -3,6 +3,7 @@ package validate
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"regexp"
 )
 
@@ -21,10 +22,12 @@ var (
 
 // MustBeString check if data is String, if not return ErrNotString
 func MustBeString(data interface{}, fn func(s string) error) error {
-	s, ok := data.(string)
-	if !ok {
+	v := reflect.ValueOf(data)
+	v = reflect.Indirect(v)
+	if v.Kind() != reflect.String {
 		return ErrNotString
 	}
+	s := v.String()
 	return fn(s)
 }
 
