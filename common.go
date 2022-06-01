@@ -73,3 +73,13 @@ func IsKind(kind reflect.Kind) Rule {
 		return nil
 	})
 }
+
+// Optional only validate if data is not empty
+func Optional(fns ...Rule) Rule {
+	return RuleFn(func(data interface{}) error {
+		if IsZero(data) {
+			return nil
+		}
+		return Rules(fns).Do(data)
+	})
+}
