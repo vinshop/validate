@@ -3,6 +3,7 @@ package validate
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 )
 
@@ -74,7 +75,7 @@ func MustBeNumber(data interface{}, fn func(a float64) error) error {
 func EQ(n float64) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeNumber(data, func(a float64) error {
-			if a != n {
+			if cmp(a, n) != 0 {
 				return ErrEQ(n)
 			}
 			return nil
@@ -86,7 +87,7 @@ func EQ(n float64) Rule {
 func NEQ(n float64) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeNumber(data, func(a float64) error {
-			if a == n {
+			if cmp(a, n) == 0 {
 				return ErrNEQ(n)
 			}
 			return nil
@@ -98,7 +99,7 @@ func NEQ(n float64) Rule {
 func LT(n float64) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeNumber(data, func(a float64) error {
-			if a >= n {
+			if cmp(a, n) != -1 {
 				return ErrLT(n)
 			}
 			return nil
@@ -110,7 +111,7 @@ func LT(n float64) Rule {
 func LTE(n float64) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeNumber(data, func(a float64) error {
-			if a > n {
+			if cmp(a, n) == 1 {
 				return ErrLTE(n)
 			}
 			return nil
@@ -122,7 +123,7 @@ func LTE(n float64) Rule {
 func GT(n float64) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeNumber(data, func(a float64) error {
-			if a <= n {
+			if cmp(a, n) != 1 {
 				return ErrGT(n)
 			}
 			return nil
@@ -134,7 +135,7 @@ func GT(n float64) Rule {
 func GTE(n float64) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeNumber(data, func(a float64) error {
-			if a < n {
+			if cmp(a, n) == -1 {
 				return ErrGTE(n)
 			}
 			return nil
@@ -159,4 +160,15 @@ func CustomNumber(fn func(n float64) error) Rule {
 			return fn(a)
 		})
 	})
+}
+
+// cmp compare 2 number, if a equal to b return 0, if a < b return -1, else return 1
+func cmp(a, b float64) int {
+	if math.Abs(a-b) < NumberEpsilon {
+		return 0
+	}
+	if a < b {
+		return -1
+	}
+	return 1
 }
