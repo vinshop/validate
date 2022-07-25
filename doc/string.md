@@ -17,6 +17,18 @@ MaxLength(int)
 ```go
 Match(regex string)
 ```
+### URL
+```go
+URL
+```
+### Email
+```go
+Email
+```
+### UUID
+```go
+UUID
+```
 ### Custom validator
 ```go
 StringCustom(func(s string) error {
