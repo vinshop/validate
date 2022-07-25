@@ -3,6 +3,9 @@ package validate
 import (
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
+	"net/mail"
+	"net/url"
 	"reflect"
 	"regexp"
 )
@@ -18,6 +21,11 @@ var (
 	ErrRegexNotMatch = func(regex string) error {
 		return fmt.Errorf("string not match regex %v", regex)
 	}
+	ErrNotURL = errors.New("must be an url")
+
+	ErrNotEmail = errors.New("must be an email address")
+
+	ErrNotUUID = errors.New("string is not a valid UUID")
 )
 
 // MustBeString check if data is String, if not return ErrNotString
@@ -66,6 +74,36 @@ func String(fns ...Rule) Rule {
 		})
 	})
 }
+
+// URL check if string is valid URL using url.ParseRequestURI, if not return ErrNotURL
+var URL Rule = RuleFn(func(data interface{}) error {
+	return MustBeString(data, func(s string) error {
+		if _, err := url.ParseRequestURI(s); err != nil {
+			return ErrNotURL
+		}
+		return nil
+	})
+})
+
+// Email check if string is valid Email using mail.ParseAddress, if not return ErrNotEmail
+var Email Rule = RuleFn(func(data interface{}) error {
+	return MustBeString(data, func(s string) error {
+		if _, err := mail.ParseAddress(s); err != nil {
+			return ErrNotEmail
+		}
+		return nil
+	})
+})
+
+// UUID check if string is valid UUID using uuid.Parse, if not return ErrNotUUID
+var UUID Rule = RuleFn(func(data interface{}) error {
+	return MustBeString(data, func(s string) error {
+		if _, err := uuid.Parse(s); err != nil {
+			return ErrNotUUID
+		}
+		return nil
+	})
+})
 
 // MaxLength check if string has max length of l, if not return ErrMaxLength
 func MaxLength(l int) Rule {

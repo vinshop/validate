@@ -2,6 +2,8 @@ package validate
 
 import (
 	"errors"
+	"fmt"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"regexp"
 	"regexp/syntax"
@@ -91,6 +93,55 @@ func TestMatch(t *testing.T) {
 		{"empty", "", ErrRegexNotMatch(regex)},
 		{"not match", "abc123", ErrRegexNotMatch(regex)},
 		{"match", "12345", nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expect, Use(test.value, fns).Validate())
+		})
+	}
+}
+
+func TestURL(t *testing.T) {
+	t.Parallel()
+	fns := URL
+	tests := []testCase{
+		{"not string", 123, ErrNotString},
+		{"empty", "", ErrNotURL},
+		{"invalid", "github.com", ErrNotURL},
+		{"url", "https://github.com", nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expect, Use(test.value, fns).Validate())
+		})
+	}
+}
+
+func TestEmail(t *testing.T) {
+	t.Parallel()
+	fns := Email
+	tests := []testCase{
+		{"not string", 123, ErrNotString},
+		{"empty", "", ErrNotEmail},
+		{"invalid", "abc.def#mail", ErrNotEmail},
+		{"email", "abc.def@mail.com", nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expect, Use(test.value, fns).Validate())
+		})
+	}
+}
+
+func TestUUID(t *testing.T) {
+	t.Parallel()
+	fns := UUID
+	tests := []testCase{
+		{"not string", 123, ErrNotString},
+		{"empty", "", ErrNotUUID},
+	}
+	for i := 0; i < 100; i++ {
+		tests = append(tests, testCase{fmt.Sprintf("uuid %v", i), uuid.New().String(), nil})
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
