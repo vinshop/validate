@@ -51,7 +51,7 @@ func MustBeRegex(data string, fn func(r *regexp.Regexp) error) error {
 	return fn(regex)
 }
 
-//StringValidate validator for String
+// StringValidate validator for String
 type StringValidate struct {
 	data interface{}
 	fns  []Rule
@@ -108,9 +108,10 @@ var UUID Rule = RuleFn(func(data interface{}) error {
 	})
 })
 
+// JSONString check if string is a valid json, if not return ErrNotJSONString
 var JSONString Rule = RuleFn(func(data interface{}) error {
 	return MustBeString(data, func(s string) error {
-		var js json.RawMessage
+		var js interface{}
 		if err := json.Unmarshal([]byte(s), &js); err != nil {
 			return ErrNotJSONString
 		}
