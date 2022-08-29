@@ -170,3 +170,19 @@ func TestStringCustom(t *testing.T) {
 		})
 	}
 }
+
+func TestJSONString(t *testing.T) {
+	t.Parallel()
+	fns := JSONString
+	tests := []testCase{
+		{"empty", "", ErrNotJSONString},
+		{"not json", "something here", ErrNotJSONString},
+		{"json", `{"key": "value", "key2": 1}`, nil},
+		{"json arr", `[{"a": 1},{"b": 2},{"c": 3}]`, nil},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert.Equal(t, test.expect, Use(test.value, fns).Validate())
+		})
+	}
+}

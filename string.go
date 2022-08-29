@@ -1,6 +1,7 @@
 package validate
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
@@ -26,6 +27,8 @@ var (
 	ErrNotEmail = errors.New("must be an email address")
 
 	ErrNotUUID = errors.New("string is not a valid UUID")
+
+	ErrNotJSONString = errors.New("must be a json string")
 )
 
 // MustBeString check if data is String, if not return ErrNotString
@@ -48,7 +51,7 @@ func MustBeRegex(data string, fn func(r *regexp.Regexp) error) error {
 	return fn(regex)
 }
 
-//StringValidate validator for String
+// StringValidate validator for String
 type StringValidate struct {
 	data interface{}
 	fns  []Rule
@@ -100,6 +103,17 @@ var UUID Rule = RuleFn(func(data interface{}) error {
 	return MustBeString(data, func(s string) error {
 		if _, err := uuid.Parse(s); err != nil {
 			return ErrNotUUID
+		}
+		return nil
+	})
+})
+
+// JSONString check if string is a valid json, if not return ErrNotJSONString
+var JSONString Rule = RuleFn(func(data interface{}) error {
+	return MustBeString(data, func(s string) error {
+		var js interface{}
+		if err := json.Unmarshal([]byte(s), &js); err != nil {
+			return ErrNotJSONString
 		}
 		return nil
 	})
