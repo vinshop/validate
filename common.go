@@ -1,25 +1,7 @@
 package validate
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
-)
-
-var (
-	ErrRequired = errors.New("value required")
-	ErrMustIn   = func(arr interface{}) error {
-		return fmt.Errorf("value must be one of %v", arr)
-	}
-	ErrNotEqual = func(i interface{}) error {
-		return fmt.Errorf("value must be equal to %v", i)
-	}
-	ErrEqual = func(i interface{}) error {
-		return fmt.Errorf("value must not be %v", i)
-	}
-	ErrNotKind = func(k reflect.Kind) error {
-		return fmt.Errorf("value kind must be %v", k.String())
-	}
 )
 
 // Require check data is empty use IsZero method, if not return ErrRequired
@@ -35,7 +17,7 @@ func In(arr interface{}) Rule {
 	return RuleFn(func(data interface{}) error {
 		return MustBeArray(arr, func(s reflect.Value) error {
 			for i := 0; i < s.Len(); i++ {
-				if reflect.DeepEqual(s.Index(i).Interface(), data) {
+				if reflect.DeepEqual(s.Index(i).Interface(), Wrap(data).Data) {
 					return nil
 				}
 			}
@@ -47,7 +29,7 @@ func In(arr interface{}) Rule {
 // Equal check data equal to interface, if not return ErrNotEqual
 func Equal(i interface{}) Rule {
 	return RuleFn(func(data interface{}) error {
-		if !reflect.DeepEqual(data, i) {
+		if !reflect.DeepEqual(Wrap(data).Data, Wrap(i).Data) {
 			return ErrNotEqual(i)
 		}
 		return nil
@@ -57,7 +39,7 @@ func Equal(i interface{}) Rule {
 // NotEqual check data equal to interface, if equal return ErrNotEqual
 func NotEqual(i interface{}) Rule {
 	return RuleFn(func(data interface{}) error {
-		if reflect.DeepEqual(data, i) {
+		if reflect.DeepEqual(Wrap(data).Data, Wrap(i).Data) {
 			return ErrEqual(i)
 		}
 		return nil
@@ -67,7 +49,7 @@ func NotEqual(i interface{}) Rule {
 // IsKind check data kind is given kind,if not return ErrNotKind
 func IsKind(kind reflect.Kind) Rule {
 	return RuleFn(func(data interface{}) error {
-		if reflect.ValueOf(data).Kind() != kind {
+		if Wrap(data).Value.Kind() != kind {
 			return ErrNotKind(kind)
 		}
 		return nil

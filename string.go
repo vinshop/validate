@@ -2,54 +2,11 @@ package validate
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/google/uuid"
 	"net/mail"
 	"net/url"
-	"reflect"
 	"regexp"
 )
-
-var (
-	ErrNotString = errors.New("must be a string")
-	ErrMaxLength = func(l int) error {
-		return fmt.Errorf("string length must not be greater than %v", l)
-	}
-	ErrMinLength = func(l int) error {
-		return fmt.Errorf("string length must be greater than %v", l)
-	}
-	ErrRegexNotMatch = func(regex string) error {
-		return fmt.Errorf("string not match regex %v", regex)
-	}
-	ErrNotURL = errors.New("must be an url")
-
-	ErrNotEmail = errors.New("must be an email address")
-
-	ErrNotUUID = errors.New("string is not a valid UUID")
-
-	ErrNotJSONString = errors.New("must be a json string")
-)
-
-// MustBeString check if data is String, if not return ErrNotString
-func MustBeString(data interface{}, fn func(s string) error) error {
-	v := reflect.ValueOf(data)
-	v = reflect.Indirect(v)
-	if v.Kind() != reflect.String {
-		return ErrNotString
-	}
-	s := v.String()
-	return fn(s)
-}
-
-// MustBeRegex check if data is regexp.Regexp, if not return err
-func MustBeRegex(data string, fn func(r *regexp.Regexp) error) error {
-	regex, err := regexp.Compile(data)
-	if err != nil {
-		return err
-	}
-	return fn(regex)
-}
 
 // StringValidate validator for String
 type StringValidate struct {

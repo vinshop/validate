@@ -40,7 +40,7 @@ type SwitchCase struct {
 }
 
 func (s *SwitchCase) Do(data interface{}) error {
-	r, ok := s.cases[data]
+	r, ok := s.cases[Wrap(data).Data]
 	if ok {
 		return r.Do(data)
 	}

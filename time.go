@@ -1,35 +1,8 @@
 package validate
 
 import (
-	"errors"
-	"fmt"
-	"reflect"
 	"time"
 )
-
-var (
-	ErrTime         = errors.New("not a valid date")
-	ErrNotInt64     = errors.New("must be int64")
-	ErrNoTimeSource = errors.New("time source not chosen")
-	ErrBefore       = func(t time.Time) error {
-		return fmt.Errorf("time must before %v", t)
-	}
-	ErrAfter = func(t time.Time) error {
-		return fmt.Errorf("time must after %v", t)
-	}
-)
-
-func MustBeTime(data interface{}, fn func(t time.Time) error) error {
-	if data == nil {
-		return ErrTime
-	}
-	v := reflect.Indirect(reflect.ValueOf(data))
-	date, ok := v.Interface().(time.Time)
-	if !ok {
-		return ErrTime
-	}
-	return fn(date)
-}
 
 type timeSource int
 
