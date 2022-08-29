@@ -2,7 +2,7 @@ package validate
 
 // Valid main validator
 type Valid struct {
-	data interface{}
+	data *Wrapper
 	fns  Rules
 }
 
@@ -13,7 +13,7 @@ func (v *Valid) Do(_ interface{}) error {
 // Use add Rule for data
 func Use(data interface{}, fns ...Rule) *Valid {
 	return &Valid{
-		data: data,
+		data: Wrap(data),
 		fns:  fns,
 	}
 }

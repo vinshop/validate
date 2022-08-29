@@ -4,12 +4,12 @@ import "reflect"
 
 // IsZero check if data is zero or not
 func IsZero(v interface{}) bool {
-	if v == nil {
+	w := Wrap(v)
+	if w.Data == nil {
 		return true
 	}
-	r := reflect.ValueOf(v)
-	if r.Kind() == reflect.Slice || r.Kind() == reflect.Array {
-		return r.Len() == 0
+	if w.Value.Kind() == reflect.Slice || w.Value.Kind() == reflect.Array {
+		return w.Value.Len() == 0
 	}
-	return reflect.DeepEqual(v, reflect.Zero(reflect.TypeOf(v)).Interface())
+	return reflect.DeepEqual(w.Data, reflect.Zero(w.Type).Interface())
 }
