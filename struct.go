@@ -1,25 +1,8 @@
 package validate
 
 import (
-	"errors"
 	"reflect"
 )
-
-var (
-	ErrNotStruct = errors.New("must be an object")
-)
-
-// MustBeStruct check if data is a struct, if not return ErrNotStruct
-func MustBeStruct(data interface{}, fn func(data reflect.Value) error) error {
-	v := reflect.ValueOf(data)
-	for v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-	if v.Kind() != reflect.Struct {
-		return ErrNotStruct
-	}
-	return fn(v)
-}
 
 // StructValidator validate for Struct
 type StructValidator struct {

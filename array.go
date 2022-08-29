@@ -1,22 +1,10 @@
 package validate
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
 )
 
-var (
-	ErrNotArray = errors.New("must be an array")
-	ErrMinSize  = func(l int) error {
-		return fmt.Errorf("size must be equal or greater than %v", l)
-	}
-	ErrMaxSize = func(l int) error {
-		return fmt.Errorf("size must be equal or smaller than %v", l)
-	}
-)
-
-//ArrayValidate validator for array
+// ArrayValidate validator for array
 type ArrayValidate struct {
 	each []Rule
 	all  []Rule
@@ -54,16 +42,6 @@ func (a ArrayValidate) Do(data interface{}) error {
 		return nil
 	})
 
-}
-
-// MustBeArray check if data is array, if not return ErrNotArray
-func MustBeArray(data interface{}, fn func(s reflect.Value) error) error {
-	v := reflect.ValueOf(data)
-	v = reflect.Indirect(v)
-	if v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
-		return ErrNotArray
-	}
-	return fn(v)
 }
 
 // Each check each element in array
