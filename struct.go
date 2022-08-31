@@ -24,7 +24,7 @@ func (v *StructValidator) Do(data interface{}) error {
 			v.key = keyable.Key()
 		}
 	}
-	return MustBeStruct(data, func(data reflect.Value) error {
+	return MustBeStruct(w, func(data reflect.Value) error {
 		for i := 0; i < data.NumField(); i++ {
 			fieldStr := data.Type().Field(i)
 			fName := fieldStr.Name
