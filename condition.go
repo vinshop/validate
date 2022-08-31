@@ -2,11 +2,19 @@ package validate
 
 // Conditional condition validator
 type Conditional struct {
-	true  Rules
-	false Rules
+	custom BoolFunc
+	true   Rules
+	false  Rules
 }
 
 func (c *Conditional) Do(data interface{}) error {
+	if c.custom != nil {
+		if c.custom() {
+			return c.true.Do(data)
+		} else {
+			return c.false.Do(data)
+		}
+	}
 	if !IsZero(data) {
 		return c.true.Do(data)
 	}
@@ -14,11 +22,16 @@ func (c *Conditional) Do(data interface{}) error {
 }
 
 // If create new conditional for array, if data is non-zero then return Then, else return Else
-func If() *Conditional {
-	return &Conditional{
+func If(ok ...BoolFunc) *Conditional {
+	c := &Conditional{
 		true:  make(Rules, 0),
 		false: make(Rules, 0),
 	}
+	if len(ok) > 0 {
+		c.custom = ok[0]
+	}
+
+	return c
 }
 
 // Then validator if condition is non-zero
@@ -35,14 +48,25 @@ func (c *Conditional) Else(fns ...Rule) *Conditional {
 
 // SwitchCase switch case validator
 type SwitchCase struct {
-	cases map[interface{}]Rules
-	def   Rules
+	cases  map[interface{}]Rules
+	def    Rules
+	custom []*caseCustom
+}
+
+type caseCustom struct {
+	ok   BoolFunc
+	rule Rule
 }
 
 func (s *SwitchCase) Do(data interface{}) error {
 	r, ok := s.cases[Wrap(data).Data]
 	if ok {
 		return r.Do(data)
+	}
+	for _, custom := range s.custom {
+		if custom.ok() {
+			return custom.rule.Do(data)
+		}
 	}
 	return s.def.Do(data)
 }
@@ -58,6 +82,15 @@ func Switch() *SwitchCase {
 // Case validator if value match case
 func (s *SwitchCase) Case(value interface{}, rule ...Rule) *SwitchCase {
 	s.cases[value] = append(s.cases[value], rule...)
+	return s
+}
+
+// CaseCustom custom validate, has higher priority than Case
+func (s *SwitchCase) CaseCustom(ok BoolFunc, rule ...Rule) *SwitchCase {
+	s.custom = append(s.custom, &caseCustom{
+		ok:   ok,
+		rule: Rules(rule),
+	})
 	return s
 }
 
