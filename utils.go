@@ -13,3 +13,6 @@ func IsZero(v interface{}) bool {
 	}
 	return reflect.DeepEqual(w.Data, reflect.Zero(w.Type).Interface())
 }
+
+// BoolFunc function return boolean value, to make sure it's not panic
+type BoolFunc func() bool
