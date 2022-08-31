@@ -17,8 +17,9 @@ type Keyable interface {
 }
 
 func (v *StructValidator) Do(data interface{}) error {
+	w := Wrap(data)
 	if v.key == "" {
-		keyable, ok := data.(Keyable)
+		keyable, ok := w.Data.(Keyable)
 		if ok {
 			v.key = keyable.Key()
 		}
