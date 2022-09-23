@@ -13,6 +13,9 @@ func TestError_GetRootError(t *testing.T) {
 	path, err := e.(*Error).GetRootError()
 	assert.Equal(t, "a.b[10]", path)
 	assert.Equal(t, ErrNotArray, err)
+	assert.Equal(t, fmt.Sprintf("%v: %v", path, ErrNotArray.Error()), e.Error())
+	SetIncludeErrPath(false)
+	assert.Equal(t, ErrNotArray.Error(), e.Error())
 	fmt.Println(err)
 }
 
