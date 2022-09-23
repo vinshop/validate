@@ -4,9 +4,22 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 type ErrType string
+
+// includeErrPath, if true (default) the error will return the full path to object triggered the error
+var includeErrPath = true
+
+var configMu sync.Mutex
+
+// SetIncludeErrPath set true if you want the error message include the full path
+func SetIncludeErrPath(value bool) {
+	configMu.Lock()
+	defer configMu.Unlock()
+	includeErrPath = value
+}
 
 const (
 	ErrField    ErrType = "field"
@@ -50,7 +63,7 @@ func ArrayError(index int, err error) error {
 
 func (e *Error) Error() string {
 	path, err := e.GetRootError()
-	if path != "" {
+	if includeErrPath && path != "" {
 		return fmt.Sprintf("%v: %v", path, err.Error())
 	}
 	return err.Error()

@@ -55,6 +55,17 @@ func main() {
 
 ## Document
 
+### Config
+
 ```
-constructing...
+SetIncludeErrPath(value bool)
 ```
+
+### Validator
+
+* [Common](doc/common.md)
+* [Array](doc/array.md)
+* [Conditional](doc/conditional.md)
+* [Number](doc/number.md)
+* [String](doc/string.md)
+* [Struct](doc/struct.md)
