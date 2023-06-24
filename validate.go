@@ -2,8 +2,9 @@ package validate
 
 // Valid main validator
 type Valid struct {
-	data *Wrapper
-	fns  Rules
+	data        *Wrapper
+	fns         Rules
+	includePath bool
 }
 
 func (v *Valid) Do(_ interface{}) error {
@@ -18,9 +19,21 @@ func Use(data interface{}, fns ...Rule) *Valid {
 	}
 }
 
+func (v *Valid) IncludePath() *Valid {
+	v.includePath = true
+	return v
+}
+
 func (v *Valid) Validate() error {
 	for _, fn := range v.fns {
 		if err := fn.Do(v.data); err != nil {
+			if cErr, ok := err.(*Error); ok {
+				if v.includePath {
+					return cErr.IncludePath()
+				}
+				return cErr
+			}
+
 			return err
 		}
 	}
