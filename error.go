@@ -14,7 +14,7 @@ var includeErrPath = true
 
 var configMu sync.Mutex
 
-// SetIncludeErrPath set true if you want the error message include the full path
+// SetIncludeErrPath set true if you want the error message include the full path globally
 func SetIncludeErrPath(value bool) {
 	configMu.Lock()
 	defer configMu.Unlock()
@@ -28,10 +28,11 @@ const (
 
 // Error common error type
 type Error struct {
-	Type ErrType
-	Key  string
-	Name string
-	Err  error
+	includePath bool
+	Type        ErrType
+	Key         string
+	Name        string
+	Err         error
 }
 
 // FieldError error for Field in Struct validator
@@ -61,9 +62,14 @@ func ArrayError(index int, err error) error {
 	}
 }
 
+func (e *Error) IncludePath() *Error {
+	e.includePath = true
+	return e
+}
+
 func (e *Error) Error() string {
 	path, err := e.GetRootError()
-	if includeErrPath && path != "" {
+	if (includeErrPath || e.includePath) && path != "" {
 		return fmt.Sprintf("%v: %v", path, err.Error())
 	}
 	return err.Error()
